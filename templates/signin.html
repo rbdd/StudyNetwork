@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class='signup_form'>
+<form method='POST' enctype='multipart/form-data' class='signup_form_content'>
+    <h1>Login</h1>
+    <img src='/static/logo/Study_network - Copy.jpg' height='120px' width='180px'>
+    <!-- Form content -->   
+    {{ form.csrf_token }}
+    <p class='form_text'>Username or email</p> 
+    <p>{{form.username_or_email}}</p>
+    <p class='form_text'>password</p> 
+    <p>{{form.password}}</p>
+    <input type='submit' value='Login'>
+    <p style='color: red;'>{{ error }}</p>
+    <p>Don't have an account? <a href='/signup'><strong>sign up</strong></a> right now!</p>
+</form>
+</div>
+{% endblock %}

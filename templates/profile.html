@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<main>
+<div class='personal_info'>
+<img src='/static/logo/sampleProfile.jpg' alt='profile pic' width='200px' height='200px'>
+<!-- Logout button -->
+<p class='username'><strong>{{ user.username }}</strong></p>
+
+{% if g.logged_in_user == user.id %}
+    <p>Email address: {{ user.email }}</p>
+    <div class='manage_profile'>
+        <button onclick='manageProfile()'>manage post</button>
+    </div>
+    <div class='logout'>
+        <button onclick="window.location = 'http://127.0.0.1:5000/logout'" type='submit'>Logout</button>
+    </div>
+{% endif %}
+</div>
+<div class='profile' id='pro'>
+{% if post %}
+    {% for each_post in post %}
+        {% if g.logged_in_user %}     
+            <p><a href='/delete_post/{{each_post.id}}'><img id=manageProfile src='/static/logo/red X.jpg' alt='click to delete'></a>
+                <a class='title' href='/comment/{{each_post.id}}'><strong>{{each_post.title}}</strong></a><br>
+            <a class='discussion' href='/comment/{{each_post.id}}'>{{each_post.discussion}}</a></p>
+        {% else %}
+            <p><a class='title' href='/signin'><strong>{{each_post.title}}</strong></a><br>
+            <a class='discussion' href='/signin'>{{each_post.discussion}}</a></p>
+        {% endif %}
+    {% endfor %}
+</div>
+{% else %}
+    <p>There are no posts to display</p>
+{% endif %}
+
+<script>
+    function manageProfile() {
+        document.querySelectorAll('.profile p img').forEach(function (element) {
+            element.style.display = 'block';
+        })
+    }
+</script>
+
+</main>
+{% endblock %}

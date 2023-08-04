@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class='signup_form'>
+<form method='POST' enctype='multipart/form-data' class='signup_form_content'>
+    <!-- Form content -->
+    <h1>sign up</h1>
+    {{ form.csrf_token }}
+    <p class='form_text'>Username</p> 
+    <p>{{ form.username }}</p>
+    <p class='form_text'>email</p>
+    <p>{{ form.email }}</p>
+    <p class='form_text'>password</p>
+    <p>{{form.password}}</p>
+    <p class='form_text'>re-enter your password</p>
+    <p>{{ form.re_password }}</p>
+    <input type='submit' value='Sign Up'>
+    <p style='color: red;'>{{ error }}</p>
+    <p>Already have an account? <a href='/signin'><strong>sign in</strong></a> right now!</p>
+</form>
+</div>
+
+{% endblock %}

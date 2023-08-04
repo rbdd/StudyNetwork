@@ -1,0 +1,19 @@
+<nav>
+<ul>
+    <div class='size_adjust_div'>
+    <li><a href='/'><img src='/static/logo/Study_network - Copy.jpg' alt='Study Network Home'></a></li>
+    
+    {% if g.logged_in_user %}
+        <li style = 'float:right'><a class='logged_in' href='/profile/{{g.logged_in_user}}'><img src='/static//logo/KakaoTalk_20210802_114208981.jpg' alt='profile'></a></li>
+        <li><a href='/post'><img src='/static/logo/KakaoTalk_20210729_123828148_01.jpg' alt='Post'></a></li>
+        {% if num_notification != 0 %}
+            <li style = 'float:right' class='notification'><a href='/notification'><span><img src='/static/logo/notification.jpg' alt='notification'></span><span class='badge'> {{num_notification}} </span></a></li>
+        {% else %}
+            <li style = 'float:right' class='notification'><a href='/notification'><span><img src='/static/logo/notification.jpg' alt='notification'></a></li>
+        {% endif %}
+    {% else %}
+        <li style = 'float:right'></listyle><a class='logged_in' href='/signin'><img src='/static/logo/KakaoTalk_20210802_113545184.jpg' alt='sign in'></a></li>
+    {% endif %}
+    </div>
+</ul>
+</nav>

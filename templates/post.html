@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<main>
+<div class='post_form'>
+<form method='POST' enctype='multipart/form-data'>
+    <!-- Form content -->   
+    <h1>post</h1>
+    {{ form.csrf_token }}
+    <div class='written_form'>
+        <p>Title: {{ form.title }}</p>
+        <p>Discussion: {{ form.discussion }}</p>
+    </div>
+    <div class='checkbox'>
+        <p>{{ form.category }}</p>
+    </div>
+    <input type='submit' value='Post'>
+    <p>{{error}}</p>
+</form>
+</div>
+</main>
+{% endblock %} 
