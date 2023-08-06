@@ -8,10 +8,7 @@
 {% if notifications %}
     {% for notification in notifications %}
         <ul>
-            <li><a href='/mark_read/{{notification.id}}/{{notification.posts_notification.id}}/1'><strong>{{notification.sender}}</strong>
-                 has made a reply to your post<strong>[{{notification.posts_notification.title}}]:</strong>
-                {{notification.content}} ➡</a>
-            </li>
+            <li><strong><a href='/mark_read/{{notification.id}}/{{notification.posts_notification.id}}/1'>{{notification.content}}</a></strong></li>
         </ul>
     {% endfor %}
     <button onclick="window.location.href='/mark_read/0/0/0'">Delete all</button>

@@ -9,9 +9,11 @@
 
 {% if g.logged_in_user == user.id %}
     <p>Email address: {{ user.email }}</p>
+    {% if post %}
     <div class='manage_profile'>
         <button onclick='manageProfile()'>manage post</button>
     </div>
+    {% endif %}
     <div class='logout'>
         <button onclick="window.location = 'http://127.0.0.1:5000/logout'" type='submit'>Logout</button>
     </div>

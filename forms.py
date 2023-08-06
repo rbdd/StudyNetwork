@@ -36,4 +36,5 @@ class Sign_in(FlaskForm):
 
 
 class Comment(FlaskForm):
-    comment = TextAreaField('Write your comment or reply here', validators=[DataRequired()])
+    comment = TextAreaField('Write your comment or reply here')
+

@@ -1,4 +1,5 @@
-from main import db
+from flask_sqlalchemy import SQLAlchemy
+db = SQLAlchemy()
 
 
 PostCategory = db.Table('PostCategory', db.Model.metadata, 
@@ -42,6 +43,7 @@ class Post(db.Model):
     date = db.Column(db.Integer)
     comments = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('User.id'))
+    likes = db.Column(db.Integer)
 
     post_user = db.relationship('User', back_populates='user_post')
     replies_post = db.relationship('Reply', secondary=PostReply, back_populates='posts_reply')

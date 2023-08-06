@@ -10,7 +10,9 @@
 <form method='POST' enctype='multipart/form-data'>
     {{ form.csrf_token }}
     {{ form.comment }}
-    <input type='submit' value='Post'>
+    <input type='submit' name = post value='Post'>   
+    <input type='submit' name = like value='👍'>
 </form>
+    
 </main>
 {% endblock %}

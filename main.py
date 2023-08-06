@@ -2,14 +2,13 @@
 import re
 import sqlite3
 from flask import Flask, render_template, request, session, redirect, url_for, Blueprint, g, abort
-from flask_sqlalchemy import SQLAlchemy  # Keep only this line for SQLAlchemy import
-#from wtforms import form
 from config import Config
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
 from sqlalchemy import desc
 
 #imports from the project
+from models import db
 import models
 from forms import Sign_in, Sign_up, Post, Comment
 
@@ -23,13 +22,10 @@ def sqlite_conn(database, query, single=False):
     conn.close() 
     return results 
 
-#db = SQLAlchemy(app)
 app = Flask(__name__)
 app.config.from_object(Config)
-#with app.app_context():
-    #db.init_app(app)
-db = SQLAlchemy(app)
-
+with app.app_context():
+    db.init_app(app)
 
 #routes#
 @app.route('/', methods=['GET', 'POST'])
@@ -41,6 +37,8 @@ def home():
     number_of_items = 0
     for p in post:
         number_of_items += 1
+
+
     return render_template('home.html', posts=post, title='home', n=int(number_of_items))
 
 
@@ -51,6 +49,10 @@ def comment(id):
     post_info = db.session.query(models.Post).filter_by(id = id).first_or_404()
     user_info = db.session.query(models.User).filter_by(id = session['logged_in_user']).first()
     comments = db.session.query(models.Comment).filter_by(Post_id = id).all()
+    notification_info = models.Notification()
+    notification_info.user_id = post_info.user_id
+    notification_info.sender = user_info.username
+    notification_info.post_id = id
 
     # when no one is logged in, tells the user to sign up
     if g.logged_in_user == None:
@@ -58,7 +60,7 @@ def comment(id):
 
     elif request.method == 'GET':# display all the comments in the post
 
-        if comments == Null:
+        if comments == None:
             return render_template('comment.html', form=form, post_info=post_info)
 
         else:
@@ -66,23 +68,22 @@ def comment(id):
 
     else: #when someone trys to make a comment, make a comment and notify the owner of the post
         if form.validate_on_submit():
-            comment_info = models.Comment()
-            comment_info.Post_id = id
-            comment_info.User_id = session['logged_in_user']
-            comment_info.comment = form.comment.data
-            db.session.add(comment_info)
-            post_info.comments += 1
-
-            if user_info.id != post_info.user_id:
-                notification_info = models.Notification()
-                notification_info.user_id = post_info.user_id
-                notification_info.sender = user_info.username
-                notification_info.content = form.comment.data
-                notification_info.post_id = id
-
-                db.session.add(notification_info)
+            if 'post' in request.form:
+                comment_info = models.Comment()
+                comment_info.Post_id = id
+                comment_info.User_id = session['logged_in_user']
+                comment_info.comment = form.comment.data
+                db.session.add(comment_info)
+                post_info.comments += 1
+                if user_info.id != post_info.user_id:
+                    notification_info.content = user_info.username + " replied to your question [" + post_info.title + "] : " + form.comment.data
+                    db.session.add(notification_info)
+            if 'like' in request.form:
+                post_info.likes += 1
+                if user_info.id != post_info.user_id:
+                    notification_info.content = user_info.username + f" promoted your question [{post_info.title}]"
+                    db.session.add(notification_info)
             db.session.commit()
-        
             return redirect(url_for('comment',id=id))
 
 
@@ -107,6 +108,7 @@ def post():
             post_info.discussion = form.discussion.data
             post_info.date = date.today().strftime('%d%m%Y')
             post_info.comments = 0
+            post_info.likes = 0
             post_info.user_id = session['logged_in_user']            
             post_info = db.session.merge(post_info)
 
@@ -192,6 +194,7 @@ def signin():
 
     usern = models.User.query.filter_by(username = request.form.get('username_or_email')).first()
     usere = models.User.query.filter_by(email = request.form.get('username_or_email')).first()
+    
     password = request.form.get('password')
 
     if request.method == 'GET': #If browser asked to see the page

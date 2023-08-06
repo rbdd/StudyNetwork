@@ -9,12 +9,18 @@ placeholder='Search for questions'>
 <div id='questionList'>
 {% for post in posts %}
 <div class='grid_container'>
-    <h3 class='title'>{{ post.title }}</h3>
-    <p class='discussion'>{{ post.discussion }}</p> 
+    {% if g.logged_in_user %}
+        <a href='/comment/{{post.id}}'><h3 class='title'>{{ post.title }}</h3></a>
+        <a href='/comment/{{post.id}}'><p class='discussion'>{{ post.discussion }}</p></a>
+    {% else %}
+        <h3 class='title'>{{ post.title }}</h3>
+        <p class='discussion'>{{ post.discussion }}</p>
+    {% endif %}
     <div class='other_information'>
     <p>Posted by: <a class='name' id='name' href='/profile/{{post.post_user.id}}'><strong>{{ post.post_user.username }}</strong></a></p>
     <p>date: {{ post.date }} 
     <p>comments: {{ post.comments }}</p>
+    <p>good question: {{ post.likes }}</p>
     <p class='tags'>Tags: {% for catego in post.categories_post %}
         {{catego.topic}}
         {% endfor %}
