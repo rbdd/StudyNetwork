@@ -5,7 +5,18 @@
 <main>
 <h1>All Questions</h1>
 <input type='text' id='search' onkeyup='SearchFilter()' 
-placeholder='Search for questions'>
+placeholder='Search for questions, username or tags'>
+<div>
+    <label for="sortSelect">Sort By:</label>
+    <select id="sortSelect" onchange="handleSort()">
+      <option value="date (descending)">Newest</option>
+      <option value="date (ascending)">Oldest</option>
+      <option value="comments (most comment)">Most comments</option>
+      <option value="comments (least comment)">Least comments</option>
+      <option value="most likes">Most likes</option>
+      <option value="least likes">Least likes</option>
+    </select>
+</div>
 <div id='questionList'>
 {% for post in posts %}
 <div class='grid_container'>
@@ -20,22 +31,20 @@ placeholder='Search for questions'>
     <p>Posted by: <a class='name' id='name' href='/profile/{{post.post_user.id}}'><strong>{{ post.post_user.username }}</strong></a></p>
     <p>date: {{ post.date }} 
     <p>comments: {{ post.comments }}</p>
-    <p>good question: {{ post.likes }}</p>
+    <p>likes: {{ post.likes }}</p>
     <p class='tags'>Tags: {% for catego in post.categories_post %}
         {{catego.topic}}
         {% endfor %}
     </p>
-    </div class='comment_button'>
-    {% if g.logged_in_user %}
-        <a href='/comment/{{post.id}}'>💬</a>
-    {% else %}
-        <a href='/signin'>💬</a>
-    {% endif %}
+</div>
 </div>
 {% endfor %}
 </div>
 
 <script>
+
+
+
 function SearchFilter() {
     // listing all the variables
     var input, filter, questionList, question, title, i, txtValue;
@@ -46,15 +55,53 @@ function SearchFilter() {
 
     for (i=0; i < question.length; i++) {
         title = question[i].getElementsByTagName('h3')[0];
+        tags = question[i].getElementsByClassName('tags')[0].innerText;
+        username = question[i].getElementsByClassName('name')[0].innerText;
 
         txtValue = title.textContent || title.innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tagsValue = tags.toUpperCase();
+        usernameValue = username.toUpperCase();
+        
+        if (txtValue.toUpperCase().indexOf(filter) > -1 || tagsValue.indexOf(filter) > -1 || usernameValue.indexOf(filter) > -1) {
             question[i].style.display = '';
         } else {
             question[i].style.display = 'none';
         }
     }
 }
+function handleSort() {
+    var sortSelect = document.getElementById('sortSelect');
+    var selectedOption = sortSelect.value;
+    var currentURL = window.location.href;
+
+    // Store the selected sorting option in localStorage
+    localStorage.setItem('selectedOption', selectedOption);
+
+    // Check if there is already a sort query parameter in the URL
+    var regex = /[\?&]sort=([^&#]*)/;
+    var match = regex.exec(currentURL);
+
+    // Replace or add the sort query parameter based on the selected option
+    if (match !== null) {
+        var updatedURL = currentURL.replace(regex, `?sort=${selectedOption}`);
+    } else {
+        updatedURL = currentURL + `?sort=${selectedOption}`;
+    }
+
+    // Reload the page with the updated URL
+    window.location.href = updatedURL;
+}
+function loadSelectedOption() {
+    var sortSelect = document.getElementById('sortSelect');
+    var selectedOption = localStorage.getItem('selectedOption');
+
+    if (selectedOption) {
+        sortSelect.value = selectedOption;
+    }
+}
+
+// Call the function to load the selected option when the page loads
+document.addEventListener('DOMContentLoaded', loadSelectedOption);
 </script>
 </main>
 

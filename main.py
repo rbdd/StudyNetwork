@@ -32,12 +32,27 @@ with app.app_context():
 def home():
     'The homepage route'
     # gets all the posts in the database
-    post = models.Post.query.order_by(desc(models.Post.id)).all()
+    post = models.Post.query
 
-    number_of_items = 0
-    for p in post:
-        number_of_items += 1
+    sort_option = request.args.get('sort')
+    if sort_option == 'comments (most comment)':
+        post = post.order_by(desc(models.Post.comments))
+    elif sort_option == 'comments (least comment)':
+        post = post.order_by(models.Post.comments)
+    elif sort_option == 'most likes':
+        post = post.order_by(desc(models.Post.likes))
+    elif sort_option == 'least likes':
+        post = post.order_by(models.Post.likes)
+    elif sort_option == 'date (ascending)':
+        post = post.order_by(models.Post.id)
+    else:  # Default sorting: by date
+        post = post.order_by(desc(models.Post.id))
 
+    post = post.all()
+
+    session['selectedOption'] = sort_option
+
+    number_of_items = len(post)
 
     return render_template('home.html', posts=post, title='home', n=int(number_of_items))
 
