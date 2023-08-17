@@ -1,16 +1,19 @@
 # imports
 import re
+import os
 import sqlite3
 from flask import Flask, render_template, request, session, redirect, url_for, Blueprint, g, abort
 from config import Config
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from datetime import date
 from sqlalchemy import desc
+import base64
 
 #imports from the project
 from models import db
 import models
-from forms import Sign_in, Sign_up, Post, Comment
+from forms import Sign_in, Sign_up, Post, Comment, ImageUpload
 
 #SQL query executer
 def sqlite_conn(database, query, single=False):
@@ -24,6 +27,7 @@ def sqlite_conn(database, query, single=False):
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.config['UPLOAD_FOLDER'] = '/static/profiles'
 with app.app_context():
     db.init_app(app)
 
@@ -174,16 +178,26 @@ def mark_read(id, pid, bid): #pid is post id
         abort(404)
 
 
-@app.route('/profile/<int:id>')
+@app.route('/profile/<int:id>', methods=['GET', 'POST'])
 def profile(id):
     'Profile route. If the user is signed in, it returns the profile page with user info. Else returns signup page'
+    form = ImageUpload()
+
     #Shows the basic information of a user with a certain id. 
     user_info = models.User.query.filter_by(id = id).first_or_404()
     post_info = models.Post.query.filter_by(user_id = id).order_by(desc(models.Post.id)).all()
 
     if g.logged_in_user:
+        if form.validate_on_submit():
+            new_image_file = form.image.data
+            if new_image_file:
+                image_filename = f'user_{user_info.id}.jpg'  # Create the filename
+                image_path = os.path.join(app.static_folder, 'profiles', image_filename)
+                with open(image_path, 'wb') as image_file:
+                    image_file.write(new_image_file.read())
         logged_in_user_info = models.User.query.filter_by(id = session['logged_in_user']).first_or_404()
-        return render_template('profile.html', user=user_info, post=post_info, loginuser=logged_in_user_info)
+        
+        return render_template('profile.html', user=user_info, post=post_info, loginuser=logged_in_user_info, form=form)
 
     else:
         return render_template('profile.html', user=user_info, post=post_info)
@@ -275,6 +289,13 @@ def signup():
                 )
                 db.session.add(user_info)
                 db.session.commit()
+                filename = f"user_{user_info.id}.jpg"
+                sample_image_path = os.path.join(app.static_folder, 'logo', 'sampleProfile.jpg')
+                with open(sample_image_path, 'rb') as image_file:
+                    sample_image_data = image_file.read()
+                image_path = os.path.join(app.static_folder, 'profiles', filename)
+                with open(image_path, 'wb') as image_file:
+                    image_file.write(sample_image_data)
                 return redirect(url_for('signin'))     
 
         else:

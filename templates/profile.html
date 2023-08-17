@@ -3,15 +3,20 @@
 {% block content %}
 <main>
 <div class='personal_info'>
-<img src='/static/logo/sampleProfile.jpg' alt='profile pic' width='200px' height='200px'>
+<img src='/static/profiles/user_{{user.id}}.jpg' alt='profile pic' width='200px' height='200px'>
 <!-- Logout button -->
 <p class='username'><strong>{{ user.username }}</strong></p>
 
 {% if g.logged_in_user == user.id %}
     <p>Email address: {{ user.email }}</p>
+    <form method="POST"  enctype='multipart/form-data'>
+    {{ form.csrf_token }}
+    {{ form.image }}
+    {{ form.submit }}
+    </form>
     {% if post %}
     <div class='manage_profile'>
-        <button onclick='manageProfile()'>manage post</button>
+        <button onclick='manageProfile()'>Manage posts</button>
     </div>
     {% endif %}
     <div class='logout'>

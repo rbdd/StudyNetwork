@@ -1,8 +1,9 @@
 from flask.app import Flask
 from flask_wtf import Form
 from flask_wtf.form import FlaskForm
+from flask_wtf.file import FileAllowed
 from flask_wtf.recaptcha import validators
-from wtforms import widgets, SelectMultipleField, SubmitField, PasswordField, StringField, HiddenField, TextAreaField
+from wtforms import widgets, SelectMultipleField, SubmitField, PasswordField, StringField, HiddenField, TextAreaField, FileField
 from wtforms.fields import EmailField
 from wtforms.validators import DataRequired, Email, Optional, ValidationError
 from wtforms.widgets.core import TextArea
@@ -38,3 +39,6 @@ class Sign_in(FlaskForm):
 class Comment(FlaskForm):
     comment = TextAreaField('Write your comment or reply here')
 
+class ImageUpload(FlaskForm):
+    image = FileField("Choose an image to upload", validators=[DataRequired(), FileAllowed(['jpg', 'jpeg', 'png'], 'Only accept image files')])
+    submit = SubmitField("upload")
