@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from datetime import date
 from sqlalchemy import desc
 import base64
+from flask_sqlalchemy import SQLAlchemy
 
 #imports from the project
 from models import db
@@ -35,8 +36,12 @@ with app.app_context():
 @app.route('/', methods=['GET', 'POST'])
 def home():
     'The homepage route'
+
+    page = request.args.get('page', 1, type=int)
     # gets all the posts in the database
     post = models.Post.query
+
+    posts_per_page = 10  # Number of posts to display per page
 
     sort_option = request.args.get('sort')
     if sort_option == 'comments (most comment)':
@@ -52,13 +57,12 @@ def home():
     else:  # Default sorting: by date
         post = post.order_by(desc(models.Post.id))
 
-    post = post.all()
+    paginated_posts = post.paginate(page=page, per_page=posts_per_page)
+    posts = paginated_posts.items
 
     session['selectedOption'] = sort_option
 
-    number_of_items = len(post)
-
-    return render_template('home.html', posts=post, title='home', n=int(number_of_items))
+    return render_template('home.html', posts=posts, title='home', n=paginated_posts.total)
 
 
 @app.route('/comment/<int:id>', methods=['GET', 'POST'])

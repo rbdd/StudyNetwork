@@ -20,6 +20,7 @@ placeholder='Search for questions, username or tags'>
 <div id='questionList'>
 {% for post in posts %}
 <div class='grid_container'>
+
     {% if g.logged_in_user %}
         <a href='/comment/{{post.id}}'><h3 class='title'>{{ post.title }}</h3></a>
         <a href='/comment/{{post.id}}'><p class='discussion'>{{ post.discussion }}</p></a>
@@ -36,15 +37,45 @@ placeholder='Search for questions, username or tags'>
         {{catego.topic}}
         {% endfor %}
     </p>
-</div>
+    </div>
 </div>
 {% endfor %}
-</div>
+<div id='loadingSpinner' style='display:none;'>Loading...</div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+var isLoading = false; // To prevent multiple simultaneous loading requests
+var page = 2; // Start with the second page of content
 
+$(window).on('scroll', function() {
+    // When user reaches near the bottom of the page
+    if ($(window).scrollTop() + $(window).height() == $(document).height()) {
+        loadMoreContent(); // Load more content
+    }
+});
 
+function loadMoreContent() {
+    if (!isLoading) {
+        isLoading = true;
+        $('#loadingSpinner').show();
 
+        $.ajax({
+            url: '{{ url_for("home") }}',  // Use the Flask route for fetching more content
+            type: 'GET',
+            data: { page: page, sort: '{{ session.selectedOption }}' },  // Send the page number and sorting option
+            success: function(response) {
+                $('#loadingSpinner').hide();
+                $('#questionList').append($(response).find('#questionList').html());
+                isLoading = false;
+                page++;
+            },
+            error: function() {
+                isLoading = false;
+                $('#loadingSpinner').hide();
+            }
+        });
+    }
+}
 function SearchFilter() {
     // listing all the variables
     var input, filter, questionList, question, title, i, txtValue;

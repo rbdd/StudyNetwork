@@ -96,8 +96,9 @@ footer ul li{
 footer ul li a{
   color: white;
 }
-
-/* HOME */
+/*--------*/
+/*  HOME  */
+/*--------*/
 .grid_container{
   display: grid;
   grid-template-columns: 50% 50%;
